@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('docs/bun.lockb') }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('web/bun.lockb') }}
           restore-keys: |
             ${{ runner.os }}-bun-
       - name: Build Frontend
@@ -50,21 +50,11 @@ jobs:
             target: aarch64-unknown-linux-musl
             bin: bili-sync-rs
             name: bili-sync-rs-Linux-aarch64-musl.tar.gz
-          - release_for: macOS-x86_64
-            os: macOS-latest
-            target: x86_64-apple-darwin
+          - release_for: Linux-armv7
+            os: ubuntu-24.04
+            target: armv7-unknown-linux-musleabi
             bin: bili-sync-rs
-            name: bili-sync-rs-Darwin-x86_64.tar.gz
-          - release_for: macOS-aarch64
-            os: macOS-latest
-            target: aarch64-apple-darwin
-            bin: bili-sync-rs
-            name: bili-sync-rs-Darwin-aarch64.tar.gz
-          - release_for: Windows-x86_64
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            bin: bili-sync-rs.exe
-            name: bili-sync-rs-Windows-x86_64.zip
+            name: bili-sync-rs-Linux-armv7-musleabi.tar.gz
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -80,6 +70,9 @@ jobs:
       - name: Install musl-tools
         run: sudo apt-get update --yes && sudo apt-get install --yes musl-tools
         if: contains(matrix.platform.target, 'musl')
+      - name: Install armv7 toolchain
+        run: sudo apt-get update --yes && sudo apt-get install --yes gcc-arm-linux-gnueabihf
+        if: contains(matrix.platform.target, 'armv7')
       - name: Build binary
         uses: houseabsolute/actions-rust-cross@v0
         with:
@@ -101,5 +94,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bili-sync-rs-${{ matrix.platform.release_for }}
-          path: |
-            ${{ github.workspace }}/${{ matrix.platform.name }}
+          path: ${{ github.workspace }}/${{ matrix.platform.name }}
