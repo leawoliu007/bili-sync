@@ -1,7 +1,6 @@
 name: Build Binary
 
-on:
-  workflow_call:
+on: [workflow_dispatch]
 
 jobs:
   build-frontend:
